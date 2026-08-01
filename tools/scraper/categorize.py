@@ -129,6 +129,13 @@ BUILD_RE = re.compile(r"\b(build|pvp|pve)\b", re.I)
 
 JUNK_TITLE = re.compile(r"^(Subcontent:|Template:|Sandbox|Test page)", re.I)
 
+def index_titles(pages):
+    names = set()
+    for p in pages.values():
+        for c in p.get("categories", []):
+            names.add(c.replace("_", " ").strip().lower())
+    return names
+
 def main():
     d = out_dir()
     pages = json.loads((d / "pages.json").read_text(encoding="utf-8"))
@@ -148,6 +155,7 @@ def main():
 
     assigned, members, origin = {}, defaultdict(list), Counter()
     unmapped = Counter()
+    hubs = index_titles(pages)
 
     for slug, page in pages.items():
         cats = [c.replace("_", " ") for c in page.get("categories", [])
@@ -156,6 +164,12 @@ def main():
         if known:
             best = min(known, key=lambda c: priority[c])
             display, section = lookup[best]
+            if page["title"].strip().lower() in hubs:
+                display = "Overviews"
+                origin["index"] += 1
+                assigned[slug] = (display, section)
+                members[(section, display)].append(slug)
+                continue
             assigned[slug] = (display, section)
             members[(section, display)].append(slug)
             origin["category"] += 1

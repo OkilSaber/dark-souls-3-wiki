@@ -372,15 +372,13 @@ class _TableBlock extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(11),
-          child: Column(children: _rows(context, flexible: true)),
+          child: Column(children: _rows(context, flexible: true, maxUnits: _units())),
         ),
       );
     }
 
-    final maxUnits = block.rows
-        .map((r) => r.fold<int>(0, (s, c) => s + c.colSpan))
-        .fold<int>(1, (a, b) => a > b ? a : b);
-    final width = maxUnits * _minColWidth;
+    final maxUnits = _units();
+    final natural = maxUnits * _minColWidth;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 14),
@@ -392,11 +390,15 @@ class _TableBlock extends StatelessWidget {
         borderRadius: BorderRadius.circular(11),
         child: LayoutBuilder(
           builder: (context, constraints) {
+            final width =
+                natural > constraints.maxWidth ? natural : constraints.maxWidth;
             final table = SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: SizedBox(
                 width: width,
-                child: Column(children: _rows(context, flexible: false)),
+                child: Column(
+                    children:
+                        _rows(context, flexible: false, maxUnits: maxUnits)),
               ),
             );
             if (width <= constraints.maxWidth) return table;
@@ -428,12 +430,27 @@ class _TableBlock extends StatelessWidget {
     );
   }
 
-  List<Widget> _rows(BuildContext context, {required bool flexible}) {
+  int _units() => block.rows
+      .map((r) => r.fold<int>(0, (s, c) => s + c.colSpan))
+      .fold<int>(1, (a, b) => a > b ? a : b);
+
+  static List<int> _spansFor(List<Cell> row, int maxUnits) {
+    final spans = [for (final c in row) c.colSpan];
+    final total = spans.fold<int>(0, (a, b) => a + b);
+    if (spans.isNotEmpty && total < maxUnits) {
+      spans[spans.length - 1] += maxUnits - total;
+    }
+    return spans;
+  }
+
+  List<Widget> _rows(BuildContext context,
+      {required bool flexible, required int maxUnits}) {
     final out = <Widget>[];
     for (var r = 0; r < block.rows.length; r++) {
       final row = block.rows[r];
       if (row.every((c) => c.isEmpty)) continue;
       final isHeader = row.every((c) => c.header) && row.isNotEmpty;
+      final spans = _spansFor(row, maxUnits);
       out.add(DecoratedBox(
         decoration: BoxDecoration(
           color: isHeader
@@ -446,15 +463,15 @@ class _TableBlock extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            for (final cell in row)
+            for (var i = 0; i < row.length; i++)
               flexible
                   ? Expanded(
-                      flex: cell.colSpan,
-                      child: _cell(context, cell, isHeader),
+                      flex: spans[i],
+                      child: _cell(context, row[i], isHeader),
                     )
                   : SizedBox(
-                      width: cell.colSpan * _minColWidth,
-                      child: _cell(context, cell, isHeader),
+                      width: spans[i] * _minColWidth,
+                      child: _cell(context, row[i], isHeader),
                     ),
           ],
         ),
