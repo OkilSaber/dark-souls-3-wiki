@@ -67,3 +67,8 @@ icon/icon_background.svg
 
 # Screenshots from the flutter run console (s key)
 flutter_*.png
+
+# Release signing credentials — never commit; back up the keystore separately.
+android/key.properties
+*.jks
+*.keystore
