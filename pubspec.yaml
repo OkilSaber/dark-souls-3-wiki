@@ -1,0 +1,29 @@
+name: dark_souls_3_wiki
+description: "Offline Dark Souls 3 wiki for Android."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  shared_preferences: ^2.5.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Scraped wiki content and images, bundled so the app works with no network.
+  assets:
+    - assets/data/
+    - assets/img/

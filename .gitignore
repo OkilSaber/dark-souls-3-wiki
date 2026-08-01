@@ -1,0 +1,66 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Scraped wiki content — regenerate with tools/scraper (see README).
+# Not committed: it is Fextralife's content, and it is ~129 MB.
+/assets/data/
+/assets/img/
+
+# Scraper scratch space
+tools/scraper/venv/
+tools/scraper/parse_cache/
+tools/scraper/images_raw/
+tools/scraper/images_opt/
+tools/scraper/parsed/
+tools/scraper/*.log
+tools/scraper/*.txt
+
+# Icon build products (regenerate with icon/make_icons.py); the 1024 master is
+# kept because the README shows it.
+icon/preview*.png
+icon/mask_preview.png
+icon/icon_foreground.svg
+icon/icon_background.svg

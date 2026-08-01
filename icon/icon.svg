@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Dark Souls 3 Wiki app icon — an Estus Flask.
+
+  Sibling to the DS1 icon: same warm ground, same gold, same single ember light
+  source, but a different subject so the two apps are never confused on a home
+  screen. One bold silhouette, no detail that dissolves below 48px.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="66%" r="78%">
+      <stop offset="0%"   stop-color="#2E1E13"/>
+      <stop offset="55%"  stop-color="#17110D"/>
+      <stop offset="100%" stop-color="#0B0908"/>
+    </radialGradient>
+
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#E07A3C" stop-opacity="0.60"/>
+      <stop offset="45%"  stop-color="#C4551F" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#8A3A12" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- The estus itself: brightest at the surface, deepening with volume -->
+    <linearGradient id="estus" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#FFD98A"/>
+      <stop offset="22%"  stop-color="#FFB347"/>
+      <stop offset="62%"  stop-color="#E8802E"/>
+      <stop offset="100%" stop-color="#B8480F"/>
+    </linearGradient>
+
+    <linearGradient id="glass" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#CFE0E6" stop-opacity="0.30"/>
+      <stop offset="35%"  stop-color="#9FB4BC" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#5A6970" stop-opacity="0.24"/>
+    </linearGradient>
+
+    <linearGradient id="goldv" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#F2DA9A"/>
+      <stop offset="45%"  stop-color="#D9B45F"/>
+      <stop offset="100%" stop-color="#8A6B2A"/>
+    </linearGradient>
+
+    <linearGradient id="goldh" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#8A6B2A"/>
+      <stop offset="30%"  stop-color="#F2DA9A"/>
+      <stop offset="65%"  stop-color="#C9A44E"/>
+      <stop offset="100%" stop-color="#6B5220"/>
+    </linearGradient>
+
+    <!-- Flask outline, reused to clip the liquid and the glass highlight -->
+    <path id="flaskShape"
+          d="M 452 300 L 452 404
+             C 452 452, 344 486, 318 570
+             C 288 668, 330 826, 512 838
+             C 694 826, 736 668, 706 570
+             C 680 486, 572 452, 572 404
+             L 572 300 Z"/>
+    <clipPath id="flaskClip"><use href="#flaskShape"/></clipPath>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Firelight pooling around the flask -->
+  <circle cx="512" cy="660" r="360" fill="url(#glow)"/>
+
+  <g id="flask">
+    <use href="#flaskShape" fill="url(#glass)"/>
+
+    <!-- estus, filled to a flat surface part-way up the bulb -->
+    <g clip-path="url(#flaskClip)">
+      <rect x="280" y="536" width="464" height="330" fill="url(#estus)"/>
+      <!-- meniscus: the liquid surface catches the most light -->
+      <rect x="280" y="536" width="464" height="14" fill="#FFE9B0" opacity="0.85"/>
+      <ellipse cx="512" cy="560" rx="150" ry="52" fill="#FFCF7A" opacity="0.34"/>
+    </g>
+
+    <!-- glass edge, plus a single specular streak down the left shoulder -->
+    <use href="#flaskShape" fill="none" stroke="#D7E3E8" stroke-opacity="0.30"
+         stroke-width="9"/>
+    <path d="M 392 520 C 356 590, 348 690, 380 764"
+          fill="none" stroke="#EAF2F5" stroke-opacity="0.45"
+          stroke-width="19" stroke-linecap="round"/>
+
+    <!-- metal collar and neck bands -->
+    <rect x="428" y="392" width="168" height="30" rx="14" fill="url(#goldh)"/>
+    <rect x="438" y="316" width="148" height="26" rx="12" fill="url(#goldh)"/>
+    <rect x="446" y="300" width="132" height="20" fill="url(#goldv)" opacity="0.55"/>
+
+    <!-- stopper -->
+    <rect x="452" y="250" width="120" height="58" rx="18" fill="url(#goldv)"/>
+    <rect x="470" y="214" width="84" height="52" rx="20" fill="#6B4A26"/>
+    <rect x="480" y="222" width="26" height="36" rx="12" fill="#8A6B44"
+          opacity="0.7"/>
+
+    <!-- band across the widest part of the bulb, tying the shape together -->
+    <path d="M 322 630 C 400 662, 624 662, 702 630"
+          fill="none" stroke="url(#goldh)" stroke-width="22"
+          stroke-linecap="round" opacity="0.9"/>
+  </g>
+
+  <!-- embers drifting off the flask -->
+  <circle cx="352" cy="470" r="10" fill="#E07A3C" opacity="0.85"/>
+  <circle cx="682" cy="430" r="7"  fill="#F0A050" opacity="0.7"/>
+  <circle cx="318" cy="380" r="6"  fill="#E07A3C" opacity="0.45"/>
+</svg>
