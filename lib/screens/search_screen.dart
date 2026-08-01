@@ -23,8 +23,6 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    // Focus after the push transition settles, so the keyboard does not fight
-    // the incoming slide for the first frames.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _focus.requestFocus();
     });
@@ -37,8 +35,6 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  /// Search runs against an in-memory title index, so it is cheap enough to
-  /// run on every keystroke — a debounce here would only add latency.
   void _run(String q) => setState(() => _results = widget.repo.search(q));
 
   @override

@@ -1,33 +1,19 @@
-"""Phase 6: emit the Flutter asset bundle.
-
-  assets/data/index.json        categories, page titles, search terms  (startup)
-  assets/data/shard_NN.json     page content, 64 shards               (on demand)
-  assets/img/<file>             optimised images
-
-Image references inside blocks are rewritten to their final filenames, and
-internal links are dropped when they point at a page we did not keep, so the
-app never renders a dead link.
-"""
 import json
 import re
 import shutil
 from collections import Counter
 from pathlib import Path
 
-# tools/scraper/build_bundle.py -> the Flutter project root
 APP = Path(__file__).resolve().parents[2]
 DATA = APP / "assets" / "data"
 IMG = APP / "assets" / "img"
 SHARDS = 64
 
-
 def shard_of(slug):
-    """Stable shard index; must match the Dart implementation exactly."""
     h = 0
     for ch in slug:
         h = (h * 31 + ord(ch)) & 0xFFFFFFFF
     return h % SHARDS
-
 
 def main():
     pages = json.loads(Path("parsed/pages.json").read_text(encoding="utf-8"))
@@ -39,10 +25,6 @@ def main():
     DATA.mkdir(parents=True, exist_ok=True)
     IMG.mkdir(parents=True, exist_ok=True)
 
-    # ---- collapse alias pages
-    # The wiki keeps several URLs for the same subject (Quelaag / Chaos Witch
-    # Quelaag), which would show as duplicate rows in a category list. Keep the
-    # richest version and point links at it.
     where_pre = {}
     for sec in cats:
         for c in sec["categories"]:
@@ -58,7 +40,6 @@ def main():
     for key, slugs in groups.items():
         if len(slugs) < 2:
             continue
-        # richest first; prefer the shorter slug to break ties (the canonical one)
         slugs.sort(key=lambda s: (-len(pages[s]["blocks"]), len(s), s))
         winner = slugs[0]
         for loser in slugs[1:]:
@@ -68,14 +49,12 @@ def main():
     print(f"collapsed {len(alias)} duplicate alias pages -> {len(pages)} pages")
 
     def resolve(slug):
-        """Follow an alias to the page we actually ship, if any."""
         seen = set()
         while slug in alias and slug not in seen:
             seen.add(slug)
             slug = alias[slug]
         return slug if slug in pages else None
 
-    # ---- copy images
     for old in IMG.glob("*"):
         old.unlink()
     n_img = 0
@@ -87,7 +66,6 @@ def main():
     def fix_img(name):
         return imap.get(name)
 
-    # ---- rewrite blocks: image names + prune dead links
     dropped_links = 0
     missing_imgs = 0
 
@@ -148,7 +126,6 @@ def main():
             out.append(b)
         page["blocks"] = out
 
-    # ---- category index + reverse lookup, minus the collapsed aliases
     for sec in cats:
         for c in sec["categories"]:
             c["slugs"] = [s for s in c["slugs"] if s in pages]
@@ -162,7 +139,6 @@ def main():
             for s in c["slugs"]:
                 where[s] = (sec["name"], c["name"])
 
-    # lead image per page for list thumbnails
     def lead_image(page):
         for b in page["blocks"]:
             if b["t"] == "card":
@@ -190,8 +166,6 @@ def main():
             entry["i"] = li
         index_pages[slug] = entry
 
-    # Natural sizes let the renderer tell a 20px stat icon apart from a boss
-    # portrait, which otherwise both get drawn at icon size inside a table.
     all_dims = json.loads(Path("parsed/image_dims.json").read_text())
     used = set()
     for page in pages.values():
@@ -222,7 +196,6 @@ def main():
         json.dumps(index, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8")
 
-    # ---- shards
     for old in DATA.glob("shard_*.json"):
         old.unlink()
     buckets = [{} for _ in range(SHARDS)]
@@ -250,7 +223,6 @@ def main():
     print(f"total assets  {(img_bytes + idx_size + sum(sizes))/1e6:.1f} MB")
     bt = Counter(b["t"] for p in pages.values() for b in p["blocks"])
     print("blocks:", dict(bt))
-
 
 if __name__ == "__main__":
     main()

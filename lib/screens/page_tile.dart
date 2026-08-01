@@ -8,7 +8,6 @@ import '../theme.dart';
 import '../wiki_repository.dart';
 import 'article_screen.dart';
 
-/// Shared list row for browse and search results.
 class PageTile extends StatelessWidget {
   const PageTile({
     super.key,
@@ -20,7 +19,6 @@ class PageTile extends StatelessWidget {
   final WikiRepository repo;
   final PageRef page;
 
-  /// Search results say where the page lives; a category list already knows.
   final bool showCategory;
 
   @override
@@ -36,8 +34,6 @@ class PageTile extends StatelessWidget {
       child: Pressable(
         borderRadius: BorderRadius.circular(12),
         onTap: () => ArticleScreen.open(context, repo, page.slug),
-        // Saving without leaving the list. The mark appearing is the
-        // confirmation, so there is no snack bar to dismiss on top of it.
         onLongPress: () {
           FavoritesScope.read(context).toggle(page.slug);
           HapticFeedback.mediumImpact();
@@ -116,6 +112,8 @@ class _Thumb extends StatelessWidget {
 
   static const _size = 46.0;
 
+  static const _decodeWidth = 138;
+
   @override
   Widget build(BuildContext context) {
     if (image == null) return _placeholder();
@@ -126,8 +124,7 @@ class _Thumb extends StatelessWidget {
         width: _size,
         height: _size,
         fit: BoxFit.cover,
-        // Bundled assets decode synchronously, so a fade would flash on every
-        // rebuild rather than covering a real load.
+        cacheWidth: _decodeWidth,
         errorBuilder: (_, _, _) => _placeholder(),
       ),
     );

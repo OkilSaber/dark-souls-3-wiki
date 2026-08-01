@@ -10,8 +10,6 @@ import 'wiki_repository.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // Draw behind the system bars so the translucent chrome has something to
-  // blur, and keep the bars themselves transparent.
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
@@ -34,8 +32,6 @@ class _DarkSoulsWikiAppState extends State<DarkSoulsWikiApp> {
   final _favorites = FavoritesStore();
   late final Future<void> _loading = _boot();
 
-  /// Index and saved pages load together; favourites are then reconciled
-  /// against what the bundle actually contains.
   Future<void> _boot() async {
     await Future.wait([_repo.load(), _favorites.load()]);
     _favorites.pruneMissing(_repo.pages.containsKey);
@@ -49,9 +45,6 @@ class _DarkSoulsWikiAppState extends State<DarkSoulsWikiApp> {
 
   @override
   Widget build(BuildContext context) {
-    // The scope sits *above* MaterialApp on purpose. Pushed routes mount under
-    // the Navigator, which is itself above `home` — so a scope placed inside
-    // `home` would be invisible to every screen except the first one.
     return FavoritesScope(
       notifier: _favorites,
       child: MaterialApp(
@@ -63,7 +56,6 @@ class _DarkSoulsWikiAppState extends State<DarkSoulsWikiApp> {
           future: _loading,
           builder: (context, snap) {
             if (snap.hasError) return _StartupError(error: snap.error!);
-            // Cross-fade rather than cut, so a fast load does not flash.
             return AnimatedSwitcher(
               duration: Motion.medium,
               switchInCurve: Motion.easeOut,
@@ -78,9 +70,6 @@ class _DarkSoulsWikiAppState extends State<DarkSoulsWikiApp> {
   }
 }
 
-/// Allow dragging with a mouse or trackpad as well as touch, so the app also
-/// behaves when the foldable is open on a desk. Android already supplies the
-/// stretch overscroll that Material 3 defaults to.
 class _SoulsScrollBehavior extends MaterialScrollBehavior {
   const _SoulsScrollBehavior();
 

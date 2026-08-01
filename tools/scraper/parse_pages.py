@@ -1,20 +1,3 @@
-"""Stage 3: turn cached MediaWiki HTML into the block schema the app renders.
-
-Block kinds (identical to the DS1 reader, so the Dart side is unchanged):
-  {"t":"h",  "l":2, "x":"heading text"}
-  {"t":"p",  "s":[span,...]}
-  {"t":"li", "o":0, "items":[{"s":[span,...], "img":[...]}]}
-  {"t":"q",  "s":[span,...]}                     flavour text
-  {"t":"tbl","info":1?, "rows":[[cell,...],...]}
-  {"t":"img","src":"file.png", "alt":"..."}
-span: {"x":text, "l":slug?, "b":1?, "i":1?}
-cell: {"s":[span,...], "img":[...], "h":1?, "cs":n?, "rs":n?}
-
-The wrinkle specific to this wiki is tabbed content. A weapon page renders its
-"Max" overview tab inline and leaves the per-infusion tabs as `Subcontent:`
-transclusion stubs. Each tab becomes a heading followed by its table, with the
-stub resolved from that subcontent page's own cached HTML.
-"""
 import hashlib
 import json
 import re
@@ -29,7 +12,6 @@ from wikiapi import is_article_link, out_dir
 
 IMG_HOST = "static0.fextralifeimages.com"
 
-# Chrome, navigation and editing furniture that is not article content.
 SKIP_CLASS = re.compile(
     r"mw-editsection|mw-jump|navbox|catlinks|printfooter|"
     r"valnet|advert|social|comment|siteSub|contentSub|noprint|"
@@ -39,16 +21,9 @@ NOISE_RE = re.compile(
     r"join the page discussion|tired of anon posting|"
     r"^\s*(load more|anonymous|edit|\[edit\])\s*$", re.I)
 
-# Flavour text here is an italic blockquote or a .flavor/.italic wrapper.
 FLAVOUR_CLASS = re.compile(r"flavor|flavour|italic|quote", re.I)
 
-
 def canonical_image(src):
-    """Collapse a thumbnail URL onto its original, so sizes dedupe to one file.
-
-    .../file/darksouls3/thumb/9/9b/Name.png/20px-Name.png
-      -> .../file/darksouls3/9/9b/Name.png
-    """
     if not src:
         return None
     if src.startswith("//"):
@@ -64,9 +39,7 @@ def canonical_image(src):
         path = f"{m.group(1)}/{m.group(2)}"
     return path
 
-
 def img_name(src):
-    """Local asset filename for an image URL, plus the remote path to fetch."""
     path = canonical_image(src)
     if not path:
         return None
@@ -78,9 +51,7 @@ def img_name(src):
     h = hashlib.sha1(path.encode()).hexdigest()[:8]
     return f"{stem}_{h}{ext}", path
 
-
 def link_slug(href):
-    """Internal article slug for an href, or None."""
     if not href:
         return None
     href = href.strip()
@@ -98,16 +69,14 @@ def link_slug(href):
         return None
     return target
 
-
 class Parser:
     def __init__(self, subcontent):
         self.images = {}
         self.links = set()
-        self.subcontent = subcontent   # Subcontent title -> cached html
+        self.subcontent = subcontent
         self.resolved_tabs = 0
         self.missing_tabs = 0
 
-    # ---------------- inline ----------------
     def spans(self, node, bold=False, italic=False, link=None):
         out = []
         for child in node.children:
@@ -143,7 +112,7 @@ class Parser:
                     self.links.add(sl)
                 out += self.spans(child, bold, italic, sl or link)
             elif name == "img":
-                pass  # images are handled at block level
+                pass
             else:
                 out += self.spans(child, bold, italic, link)
         return self.merge(out)
@@ -172,7 +141,6 @@ class Parser:
                 names.append(name)
         return names
 
-    # ---------------- blocks ----------------
     def table(self, tb, info=False):
         rows = []
         for tr in tb.find_all("tr"):
@@ -217,9 +185,7 @@ class Parser:
             return None
         return {"t": "li", "o": 1 if ul.name == "ol" else 0, "items": items}
 
-    # ---------------- tabs ----------------
     def tabber(self, node, out, depth):
-        """Flatten a tab group into headings plus their panel content."""
         labels = [a.get_text(" ", strip=True)
                   for a in node.select(".tabber__tabs .tabber__tab")]
         panels = node.select(".tabber__panel")
@@ -243,9 +209,6 @@ class Parser:
             self.walk(body, inner, depth + 1)
             if not inner:
                 continue
-            # Most infusion tabs are still called "Tab 7" on the wiki. Their
-            # lead paragraph names the gem, so recover the real label from it
-            # rather than printing a placeholder or nothing.
             if re.fullmatch(r"tab \d+", label.strip(), re.I):
                 label = self.derive_tab_label(inner)
             if label:
@@ -254,7 +217,6 @@ class Parser:
 
     @staticmethod
     def derive_tab_label(blocks):
-        """Infer an infusion name from a panel's opening paragraph."""
         for b in blocks[:2]:
             if b["t"] != "p":
                 continue
@@ -265,7 +227,6 @@ class Parser:
                 return m.group(1).strip()
         return None
 
-    # ---------------- walk ----------------
     def walk(self, node, out, depth=0):
         for child in node.children:
             if isinstance(child, NavigableString):
@@ -330,7 +291,6 @@ class Parser:
             elif n == "hr":
                 continue
             elif n == "dl":
-                # Indented definition lists are used for flavour text.
                 for dd in child.find_all("dd", recursive=False):
                     sp = self.spans(dd)
                     if sp:
@@ -350,7 +310,6 @@ class Parser:
                 if depth < 16:
                     self.walk(child, out, depth + 1)
 
-
 def clean_blocks(blocks):
     out = []
     for b in blocks:
@@ -368,9 +327,7 @@ def clean_blocks(blocks):
         ded.pop()
     return ded
 
-
 def load_subcontent(titles):
-    """Cached HTML for every Subcontent page, keyed by full title."""
     out = {}
     for t in titles:
         p = cache_path(t)
@@ -381,7 +338,6 @@ def load_subcontent(titles):
         except Exception:
             pass
     return out
-
 
 def main():
     d = out_dir()
@@ -447,7 +403,6 @@ def main():
     print(f"tabs resolved {resolved}, unresolved {missing}")
     print("blocks:", dict(Counter(b["t"] for p in pages.values()
                                   for b in p["blocks"])))
-
 
 if __name__ == "__main__":
     main()

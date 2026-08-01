@@ -1,23 +1,10 @@
-"""Stage 4: group pages into sections using real MediaWiki categories.
-
-The DS1 wiki had no category system, so that scraper had to infer membership
-from each article's opening sentence. Here membership is authoritative — the
-only work is mapping ~117 wiki categories onto a browsable hierarchy and
-picking one when a page belongs to several.
-
-Order matters: entries earlier in CATEGORY_MAP win. Specific weapon types beat
-the generic "Weapons" bucket, and both beat DLC groupings, so a Ringed City
-katana files under Katanas rather than under a DLC heap.
-"""
 import json
 import re
 from collections import Counter, defaultdict
 
 from wikiapi import out_dir
 
-# wiki category -> (display name, section). First match in this order wins.
 CATEGORY_MAP = [
-    # --- Equipment: weapons, most specific first
     ("Straight Swords", "Straight Swords", "Weapons"),
     ("Greatswords", "Greatswords", "Weapons"),
     ("Ultra Greatswords", "Ultra Greatswords", "Weapons"),
@@ -43,7 +30,6 @@ CATEGORY_MAP = [
     ("Ashes of Ariandel Weapons", "DLC Weapons", "Weapons"),
     ("The Ringed City Weapons", "DLC Weapons", "Weapons"),
 
-    # --- Equipment: shields, armour, catalysts
     ("Small Shields", "Small Shields", "Equipment"),
     ("Standard Shields", "Standard Shields", "Equipment"),
     ("Greatshields", "Greatshields", "Equipment"),
@@ -71,7 +57,6 @@ CATEGORY_MAP = [
     ("Rings", "Rings", "Equipment"),
     ("Ammunition", "Ammunition", "Equipment"),
 
-    # --- Magic
     ("Sorceries", "Sorceries", "Magic"),
     ("Miracles", "Miracles", "Magic"),
     ("Pyromancies", "Pyromancies", "Magic"),
@@ -79,7 +64,6 @@ CATEGORY_MAP = [
     ("Skills", "Weapon Skills", "Magic"),
     ("Magic", "Magic Overview", "Magic"),
 
-    # --- Items
     ("Key Items", "Key Items", "Items"),
     ("Consumables", "Consumables", "Items"),
     ("Upgrade Materials", "Upgrade Materials", "Items"),
@@ -92,26 +76,23 @@ CATEGORY_MAP = [
     ("Upgrades", "Upgrade Materials", "Items"),
     ("Items", "Other Items", "Items"),
 
-    # --- World
     ("Bosses", "Bosses", "World"),
     ("Enemies", "Enemies", "World"),
     ("NPCs", "NPCs", "World"),
     ("Invading NPC Phantoms", "Invaders", "World"),
     ("Locations", "Locations", "World"),
     ("Summonable NPC Phantoms", "Summons", "World"),
-    ("Sumonable NPC Phantoms", "Summons", "World"),   # the wiki's own typo
+    ("Sumonable NPC Phantoms", "Summons", "World"),
     ("Hollow Arena", "Hollow Arena", "World"),
     ("Ashes of Ariandel", "DLC: Ashes of Ariandel", "World"),
     ("The Ringed City", "DLC: The Ringed City", "World"),
     ("DLC", "DLC", "World"),
 
-    # --- Character
     ("Classes", "Classes", "Character"),
     ("Stats", "Stats", "Character"),
     ("Covenants", "Covenants", "Character"),
     ("Character Information", "Character Info", "Character"),
 
-    # --- Builds & guides
     ("PvE Builds", "PvE Builds", "Builds"),
     ("PvP Builds", "PvP Builds", "Builds"),
     ("Builds", "Builds", "Builds"),
@@ -119,7 +100,6 @@ CATEGORY_MAP = [
     ("Guides and Walkthroughs", "Guides", "Guides"),
     ("Japanese Version Help", "Japanese Version", "Guides"),
 
-    # --- General
     ("Combat", "Combat", "General"),
     ("Damage Types", "Damage Types", "General"),
     ("Status Effects", "Status Effects", "General"),
@@ -139,7 +119,6 @@ CATEGORY_MAP = [
 SECTION_ORDER = ["Weapons", "Equipment", "Magic", "Items", "World",
                  "Character", "Builds", "Guides", "General", "Misc"]
 
-# Maintenance categories carry no meaning for a reader.
 IGNORE_CATEGORY = re.compile(
     r"^(Pages using|Pages with|Articles |Candidates |Stubs?$|"
     r"Chatroom$|Dark Souls 3 Wiki$|Dark Souls 3 Build$|Porcine Shield$)", re.I)
@@ -148,9 +127,7 @@ BUILD_FIELD_RE = re.compile(
     r"(starting class|soul level|created by|starting gift)\s*:", re.I)
 BUILD_RE = re.compile(r"\b(build|pvp|pve)\b", re.I)
 
-# Titles that are wiki scaffolding rather than content.
 JUNK_TITLE = re.compile(r"^(Subcontent:|Template:|Sandbox|Test page)", re.I)
-
 
 def main():
     d = out_dir()
@@ -185,7 +162,6 @@ def main():
             continue
         for c in cats:
             unmapped[c] += 1
-        # No usable category: builds are recognisable by their stat fields.
         if BUILD_FIELD_RE.search(page["text"]) or BUILD_RE.search(page["title"]):
             assigned[slug] = ("Builds", "Builds")
             members[("Builds", "Builds")].append(slug)
@@ -226,7 +202,6 @@ def main():
         print("\nunmapped categories seen on uncategorised pages:")
         for c, n in unmapped.most_common(12):
             print(f"  {n:>4}  {c}")
-
 
 if __name__ == "__main__":
     main()

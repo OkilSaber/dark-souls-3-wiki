@@ -1,13 +1,3 @@
-/// Data model mirroring the JSON emitted by the scraper.
-///
-/// Block kinds, all keyed by `t`:
-///   h    heading      l=level, x=text, s=optional spans (when it contains links)
-///   p    paragraph    s=spans
-///   q    blockquote   s=spans
-///   li   list         o=ordered, items=[{s, img}]
-///   tbl  table        info=is infobox, rows=[[cell]]
-///   img  image        src, alt
-///   card gallery card src, x=label, l=optional target slug
 library;
 
 class Span {
@@ -73,7 +63,6 @@ class ListItem {
       );
 }
 
-/// A single renderable element of an article.
 class Block {
   final String type;
   final int level;
@@ -174,7 +163,6 @@ class Article {
       );
 }
 
-/// Lightweight record for browse lists and search, held in memory for every page.
 class PageRef {
   final String slug;
   final String title;

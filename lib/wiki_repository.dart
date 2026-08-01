@@ -5,9 +5,6 @@ import 'package:flutter/services.dart';
 
 import 'models.dart';
 
-/// Loads the bundled wiki. Everything is offline: the index is read once at
-/// startup, article bodies come from sharded files fetched on demand and kept
-/// in a small LRU cache so revisiting pages is instant.
 class WikiRepository {
   static const _shardCount = 64;
   static const _maxCachedShards = 8;
@@ -15,7 +12,6 @@ class WikiRepository {
   final List<Section> sections = [];
   final Map<String, PageRef> pages = {};
 
-  /// Natural pixel size of each bundled image, by filename.
   static final Map<String, (int, int)> imageSizes = {};
 
   late final List<PageRef> _sortedPages;
@@ -54,7 +50,6 @@ class WikiRepository {
   static Map<String, dynamic> _decodeIndex(String raw) =>
       jsonDecode(raw) as Map<String, dynamic>;
 
-  /// Must match `shard_of` in the bundle builder.
   static int shardOf(String slug) {
     var h = 0;
     for (final c in slug.codeUnits) {
@@ -74,7 +69,7 @@ class WikiRepository {
   Future<Map<String, dynamic>> _loadShard(int i) {
     final cached = _shardCache.remove(i);
     if (cached != null) {
-      _shardCache[i] = cached; // refresh LRU position
+      _shardCache[i] = cached;
       return Future.value(cached);
     }
     final pending = _inFlight[i];
@@ -101,8 +96,6 @@ class WikiRepository {
   List<PageRef> refsFor(Iterable<String> slugs) =>
       slugs.map((s) => pages[s]).whereType<PageRef>().toList();
 
-  /// Title-first ranked search: exact, prefix, word-start, then substring.
-  /// Falls back to snippet text so a query like "poise" still finds something.
   List<PageRef> search(String query, {int limit = 60}) {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return const [];

@@ -1,10 +1,3 @@
-"""Stage 2: fetch rendered content HTML for every page, into a local cache.
-
-Subcontent pages are fetched alongside articles because the weapon upgrade
-tables live there: a weapon page renders one "Max" overview tab inline and
-leaves the per-infusion tabs as `Subcontent:` transclusion stubs. Resolving
-them offline means having their HTML too.
-"""
 import asyncio
 import hashlib
 import json
@@ -16,12 +9,10 @@ from wikiapi import Api, out_dir
 
 CACHE = Path("parse_cache")
 
-
 def cache_path(title):
     h = hashlib.sha1(title.encode()).hexdigest()[:16]
     safe = re.sub(r"[^A-Za-z0-9._-]", "_", title)[:70]
     return CACHE / f"{safe}__{h}.json"
-
 
 async def fetch_one(api, title, stats):
     dest = cache_path(title)
@@ -33,7 +24,6 @@ async def fetch_one(api, title, stats):
                              prop="text|categories|displaytitle",
                              disablelimitreport=1, disableeditsection=1)
     except Exception as e:
-        # A page can vanish between listing and fetching; that is not fatal.
         stats["failed"] += 1
         stats.setdefault("errors", []).append(f"{title}: {e}")
         return
@@ -48,7 +38,6 @@ async def fetch_one(api, title, stats):
         "html": p.get("text", {}).get("*", ""),
     }, ensure_ascii=False), encoding="utf-8")
     stats["ok"] += 1
-
 
 async def main():
     CACHE.mkdir(exist_ok=True)
@@ -76,7 +65,6 @@ async def main():
         print(f"  {len(stats['errors'])} errors -> fetch_errors.txt")
         for line in stats["errors"][:5]:
             print("   ", line[:140])
-
 
 if __name__ == "__main__":
     sys.exit(asyncio.run(main()))

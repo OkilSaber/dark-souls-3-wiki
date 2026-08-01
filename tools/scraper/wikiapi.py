@@ -1,9 +1,3 @@
-"""Shared MediaWiki API client.
-
-The DS3 wiki runs MediaWiki 1.43 with an open api.php, so there is no reason to
-scrape rendered pages: the API gives canonical page lists, real category
-membership, and pre-rendered content HTML.
-"""
 import asyncio
 import json
 import urllib.parse
@@ -19,32 +13,24 @@ UA = ("DarkSouls3OfflineWiki/1.0 (personal offline reader; "
 NS_MAIN = 0
 NS_SUBCONTENT = 3005
 
-# Namespaces that appear in article links but are not articles themselves.
 LINK_PREFIX_SKIP = (
     "File:", "Category:", "Template:", "Help:", "User:", "Talk:",
     "Special:", "MediaWiki:", "Subcontent:", "ValnetWikiComments:",
     "PopWikis:", "PageTemplate:", "Embargo:", "Wikitest:",
 )
 
-
 def slugify(title):
-    """MediaWiki canonical URL form: spaces become underscores."""
     return title.replace(" ", "_")
-
 
 def unslug(slug):
     return slug.replace("_", " ")
 
-
 def is_article_link(target):
-    """True when a link target is a normal content page we might have kept."""
     if not target or target.startswith("#"):
         return False
     return not target.startswith(LINK_PREFIX_SKIP)
 
-
 class Api:
-    """Small async wrapper with retry and a shared concurrency limit."""
 
     def __init__(self, concurrency=8):
         self._sem = asyncio.Semaphore(concurrency)
@@ -69,7 +55,6 @@ class Api:
                         data = r.json()
                         if "error" in data:
                             raise RuntimeError(data["error"])
-                        # Be a good citizen even though the API is fast.
                         await asyncio.sleep(0.05)
                         return data
                     if r.status_code in (429, 503):
@@ -81,7 +66,6 @@ class Api:
         raise RuntimeError(f"API failed after retries: {params}")
 
     async def paged(self, **params):
-        """Yield each response page of a list/generator query."""
         cont = {}
         while True:
             data = await self.get(**params, **cont)
@@ -90,16 +74,13 @@ class Api:
                 return
             cont = data["continue"]
 
-
 def sync_get(**params):
-    """Blocking single call, for scripts that only need one or two."""
     params.setdefault("format", "json")
     url = API + "?" + urllib.parse.urlencode(params)
     import urllib.request
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=60) as fh:
         return json.load(fh)
-
 
 def out_dir():
     d = Path("parsed")

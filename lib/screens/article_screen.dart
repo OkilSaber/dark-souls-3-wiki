@@ -16,7 +16,6 @@ class ArticleScreen extends StatefulWidget {
   final WikiRepository repo;
   final String slug;
 
-  /// Pushes an article, or tells the user when the target was not scraped.
   static void open(BuildContext context, WikiRepository repo, String slug) {
     if (repo.ref(slug) == null) {
       ScaffoldMessenger.of(context)
@@ -43,8 +42,6 @@ class _ArticleScreenState extends State<ArticleScreen> {
   late final LinkTapRegistry _links = LinkTapRegistry(_openLink);
   final _scroll = ScrollController();
 
-  /// The bar only names the page once its own title has scrolled away, so the
-  /// title is never on screen twice.
   final _showBarTitle = ValueNotifier(false);
 
   @override
@@ -158,8 +155,6 @@ class _Loading extends StatelessWidget {
   }
 }
 
-/// Section › category, tinted with the section accent and tappable — it says
-/// where you are and doubles as the way back out to siblings.
 class _Breadcrumb extends StatelessWidget {
   const _Breadcrumb({required this.repo, required this.ref});
 

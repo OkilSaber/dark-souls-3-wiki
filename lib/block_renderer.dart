@@ -6,10 +6,6 @@ import 'motion.dart';
 import 'theme.dart';
 import 'wiki_repository.dart';
 
-/// Owns the tap recognizers for a screen's link spans.
-///
-/// `TextSpan.recognizer` needs a long-lived object that must be disposed, so
-/// recognizers are vended per slug here and torn down with the hosting State.
 class LinkTapRegistry {
   LinkTapRegistry(this.onLink);
 
@@ -29,7 +25,6 @@ class LinkTapRegistry {
   }
 }
 
-/// Renders parsed wiki blocks. `onLink` receives an internal page slug.
 class BlockList extends StatelessWidget {
   const BlockList({
     super.key,
@@ -49,7 +44,6 @@ class BlockList extends StatelessWidget {
     final children = <Widget>[];
     for (var i = 0; i < blocks.length; i++) {
       final b = blocks[i];
-      // Gallery cards come in runs; lay a whole run out as one grid.
       if (b.type == 'card') {
         final run = <Block>[];
         while (i < blocks.length && blocks[i].type == 'card') {
@@ -82,14 +76,14 @@ class BlockList extends StatelessWidget {
       case 'tbl':
         return _TableBlock(block: b, links: links);
       case 'img':
-        return _Figure(src: b.src!, caption: b.alt, onImage: onImage);
+        final src = b.src;
+        if (src == null) return null;
+        return _Figure(src: src, caption: b.alt, onImage: onImage);
       default:
         return null;
     }
   }
 }
-
-// ---------------------------------------------------------------- inline text
 
 List<InlineSpan> _inline(
   BuildContext context,
@@ -107,8 +101,6 @@ List<InlineSpan> _inline(
         text: s.text,
         style: st.copyWith(
           color: AppTheme.link,
-          // An underline on every wiki link turns dense pages into noise;
-          // the warm hue carries it, and the whole run is the tap target.
           decoration: TextDecoration.none,
         ),
         recognizer: links.of(s.link!),
@@ -118,10 +110,6 @@ List<InlineSpan> _inline(
   }).toList();
 }
 
-// ---------------------------------------------------------------- blocks
-
-/// Top-level headings get a hairline rule; deeper ones rely on weight and
-/// space alone, so the page has one clear level of division rather than three.
 class _Heading extends StatelessWidget {
   const _Heading({required this.block, required this.links});
   final Block block;
@@ -173,8 +161,6 @@ class _Paragraph extends StatelessWidget {
   }
 }
 
-/// Flavour text — in this game that is almost always an item description, so
-/// it is set like one: serif, italic, warm, held off the left margin.
 class _Quote extends StatelessWidget {
   const _Quote({required this.spans, required this.links});
   final List<Span> spans;
@@ -239,8 +225,6 @@ class _BulletList extends StatelessWidget {
                               ),
                             ),
                           )
-                        // A small dot rather than a bullet glyph: it aligns
-                        // predictably across font fallbacks.
                         : const Padding(
                             padding: EdgeInsets.only(top: 9, left: 3),
                             child: SizedBox(
@@ -336,11 +320,6 @@ class _Figure extends StatelessWidget {
   }
 }
 
-/// An image inside a table cell or list item.
-///
-/// The same slot holds both 20px stat icons and full item/boss portraits, so
-/// the natural size decides how large to draw it — otherwise portraits get
-/// squashed down to icon height.
 class _InlineIcon extends StatelessWidget {
   const _InlineIcon({required this.src});
   final String src;
@@ -372,8 +351,6 @@ class _InlineIcon extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------- tables
-
 class _TableBlock extends StatelessWidget {
   const _TableBlock({required this.block, required this.links});
   final Block block;
@@ -385,8 +362,6 @@ class _TableBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     if (block.rows.isEmpty) return const SizedBox.shrink();
 
-    // Infoboxes are laid out with colspan weights and fit the screen width.
-    // Data tables get fixed-width columns and scroll sideways.
     if (block.infobox) {
       return Container(
         margin: const EdgeInsets.only(bottom: 18),
@@ -424,8 +399,6 @@ class _TableBlock extends StatelessWidget {
                 child: Column(children: _rows(context, flexible: false)),
               ),
             );
-            // Only hint at sideways scrolling when there is actually more
-            // table than screen.
             if (width <= constraints.maxWidth) return table;
             return Stack(
               children: [
@@ -470,9 +443,6 @@ class _TableBlock extends StatelessWidget {
               ? null
               : const Border(bottom: BorderSide(color: AppTheme.borderSoft)),
         ),
-        // Not `stretch`: inside a scrolling Column the row height is unbounded,
-        // and stretching children against it forces an infinite constraint.
-        // The row background comes from the DecoratedBox above regardless.
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -530,8 +500,6 @@ class _TableBlock extends StatelessWidget {
     );
   }
 }
-
-// ---------------------------------------------------------------- card grid
 
 class _CardGrid extends StatelessWidget {
   const _CardGrid({required this.cards, required this.links});

@@ -6,25 +6,16 @@ import '../motion.dart';
 import '../theme.dart';
 import '../widgets/glass.dart';
 import '../wiki_repository.dart';
-import 'article_screen.dart';
 import 'category_screen.dart';
 import 'favorites_screen.dart';
 import 'search_screen.dart';
 import 'section_screen.dart';
 
-/// Browse entry point.
-///
-/// Two routes into the wiki sit above the fold: search, and a row of shortcuts
-/// to the handful of categories people actually come here for. The section
-/// grid underneath is the exhaustive path, not the primary one.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.repo});
 
   final WikiRepository repo;
 
-  /// Shortcut targets, in the order a player is likely to want them. Names are
-  /// matched against the real category list so a rename in the scraper drops
-  /// the chip rather than producing a dead one.
   static const _quickPicks = [
     'Bosses',
     'Straight Swords',
@@ -53,8 +44,6 @@ class HomeScreen extends StatelessWidget {
     ];
   }
 
-  /// Card height: icon, two lines of label, padding — then whatever extra the
-  /// user's font scale asks for.
   static double _cardHeight(BuildContext context) {
     final scale = MediaQuery.textScalerOf(context).scale(1);
     return 112 + (scale - 1).clamp(0, 1.4) * 52;
@@ -76,9 +65,6 @@ class HomeScreen extends StatelessWidget {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
             sliver: SliverGrid(
-              // Height is stated outright and grows with the user's text size
-              // setting. A fixed aspect ratio would clip the labels as soon as
-              // the system font scales up.
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 260,
                 mainAxisSpacing: 10,
@@ -120,8 +106,6 @@ class _Masthead extends StatelessWidget {
               const Icon(Icons.local_fire_department,
                   color: AppTheme.ember, size: 20),
               const SizedBox(width: 8),
-              // Tracked-out capitals get wide fast under a large text scale;
-              // let the label give way rather than push past the margin.
               Flexible(
                 child: Text('BONFIRE LIT',
                     maxLines: 1,
@@ -195,8 +179,6 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-/// Entry to the saved list. Shows its count so the shortcut advertises that it
-/// has something in it, rather than looking like an empty bookmark icon.
 class _SavedButton extends StatelessWidget {
   const _SavedButton({required this.repo, required this.count});
 
@@ -251,8 +233,6 @@ class _SavedButton extends StatelessWidget {
   }
 }
 
-/// Horizontal shortcut rail. Scrolls rather than wrapping so it stays one
-/// predictable line however many picks survive the name match.
 class _QuickRow extends StatelessWidget {
   const _QuickRow({required this.repo, required this.picks});
 
@@ -378,7 +358,3 @@ class _SectionCard extends StatelessWidget {
     );
   }
 }
-
-/// Shared "open this article" helper so every entry point behaves the same.
-void openArticle(BuildContext context, WikiRepository repo, String slug) =>
-    ArticleScreen.open(context, repo, slug);

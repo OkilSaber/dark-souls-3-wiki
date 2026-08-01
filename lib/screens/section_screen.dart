@@ -7,8 +7,6 @@ import '../widgets/glass.dart';
 import '../wiki_repository.dart';
 import 'category_screen.dart';
 
-/// The category list for one section — the middle rung between the home grid
-/// and a page list.
 class SectionScreen extends StatelessWidget {
   const SectionScreen({super.key, required this.repo, required this.section});
 

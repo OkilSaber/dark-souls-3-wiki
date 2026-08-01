@@ -5,8 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('shard assignment', () {
     test('matches the Python bundle builder for known slugs', () {
-      // The app and build_bundle.shard_of must agree or articles resolve to
-      // the wrong shard file.
       int expected(String slug) {
         var h = 0;
         for (final c in slug.codeUnits) {
@@ -82,7 +80,7 @@ void main() {
       expect(b.rows[0][0].header, isTrue);
       expect(b.rows[0][0].images, ['zwei.png']);
       expect(b.rows[1][1].text, '325');
-      expect(b.rows[1][0].isEmpty, isFalse); // icon-only cell still has content
+      expect(b.rows[1][0].isEmpty, isFalse);
     });
 
     test('reads a gallery card and a heading level', () {
@@ -151,7 +149,6 @@ void main() {
   });
 
   group('bundled data', () {
-    // rootBundle needs the test binding; these read the real shipped assets.
     setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
 
     test('index loads and articles resolve from their shard', () async {
@@ -229,7 +226,6 @@ void main() {
       final repo = WikiRepository();
       await repo.load();
 
-      // sample across shards rather than loading all 1735 articles
       final slugs = repo.pages.keys.take(120);
       for (final slug in slugs) {
         final a = await repo.article(slug);

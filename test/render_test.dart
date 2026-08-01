@@ -6,8 +6,6 @@ import 'package:dark_souls_3_wiki/wiki_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Renders real bundled articles so a layout failure surfaces here instead of
-/// as a silently blank screen in a release build.
 void main() {
   late WikiRepository repo;
   late FavoritesStore favorites;
@@ -16,13 +14,9 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     repo = WikiRepository();
     await repo.load();
-    // Not loaded from storage: these tests only need the scope to exist, and
-    // touching SharedPreferences would drag a platform channel in.
     favorites = FavoritesStore();
   });
 
-  /// Shard decoding runs on a real isolate via `compute`, which fake-async
-  /// cannot drive, so warm the cache with runAsync before pumping.
   Future<void> pumpArticle(WidgetTester tester, String slug) async {
     await tester.runAsync(() => repo.article(slug));
     await tester.pumpWidget(FavoritesScope(
@@ -49,7 +43,6 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.byType(BlockList), findsOneWidget);
-    // the body actually occupies space, rather than collapsing to nothing
     expect(tester.getSize(find.byType(BlockList)).height, greaterThan(200));
   });
 

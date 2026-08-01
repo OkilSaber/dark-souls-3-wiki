@@ -1,15 +1,7 @@
-"""Stage 1: enumerate every article and its real category membership.
-
-Unlike the DS1 wiki, this one is MediaWiki and has genuine categories, so
-membership is read rather than inferred. Subcontent pages (the transcluded
-weapon upgrade tabs) inherit their parent's categories, which is why category
-sizes look inflated in the API — they are filtered out here by namespace.
-"""
 import asyncio
 import json
 
 from wikiapi import NS_MAIN, NS_SUBCONTENT, Api, out_dir, slugify
-
 
 async def all_titles(api, namespace):
     titles = []
@@ -18,9 +10,7 @@ async def all_titles(api, namespace):
         titles += [p["title"] for p in page["query"]["allpages"]]
     return titles
 
-
 async def categories_for(api, titles):
-    """Category membership for main-namespace titles, 50 per request."""
     out = {}
     batches = [titles[i:i + 50] for i in range(0, len(titles), 50)]
 
@@ -42,7 +32,6 @@ async def categories_for(api, titles):
 
     await asyncio.gather(*(one(b) for b in batches))
     return out
-
 
 async def main():
     async with Api() as api:
@@ -68,7 +57,6 @@ async def main():
     uncategorised = sum(1 for v in meta.values() if not v["categories"])
     print(f"with categories {len(meta) - uncategorised}/{len(meta)} "
           f"({uncategorised} bare)")
-
 
 if __name__ == "__main__":
     asyncio.run(main())

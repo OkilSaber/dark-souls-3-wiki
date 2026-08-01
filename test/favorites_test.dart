@@ -32,7 +32,6 @@ void main() {
       first.toggle('Lothric_Knight_Sword');
       first.toggle('Vordt_of_the_Boreal_Valley');
 
-      // A fresh store standing in for the next launch of the app.
       final second = FavoritesStore();
       await second.load();
       expect(second.contains('Lothric_Knight_Sword'), isTrue);
@@ -78,10 +77,6 @@ void main() {
   group('favorites scope placement', () {
     setUp(() => SharedPreferences.setMockInitialValues({}));
 
-    // The "scope wraps MaterialApp" assertion lives in app_structure_test.dart:
-    // it has to pump the real app, which starts a background index load, and
-    // that must not run in the same file as tests which load the repository.
-
     testWidgets('resolves from inside a pushed route', (tester) async {
       final store = FavoritesStore();
       await store.load();
@@ -126,9 +121,6 @@ void main() {
 
     setUp(() => SharedPreferences.setMockInitialValues({}));
 
-    /// The section grid used to be sized by a fixed aspect ratio, which clipped
-    /// its labels as soon as the system font scaled up. Pump it at a range of
-    /// text scales and widths and assert nothing overflows.
     testWidgets('section cards survive large text and narrow screens',
         (tester) async {
       final store = FavoritesStore();
@@ -150,8 +142,6 @@ void main() {
               ),
             ),
           ));
-          // Let the staggered entrance run out, so the assertion sees the
-          // settled layout and no timer outlives the pump.
           await tester.pump();
           await tester.pump(const Duration(milliseconds: 600));
 

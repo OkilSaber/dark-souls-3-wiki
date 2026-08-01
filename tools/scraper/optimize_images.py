@@ -1,9 +1,3 @@
-"""Phase 5: shrink images for bundling into the APK.
-
-Icons (<=160px) pass through untouched. Everything else is capped at MAX_DIM
-and re-encoded; images whose alpha channel is unused become JPEG.
-Returns a name -> final filename map, since extensions can change.
-"""
 import json
 from pathlib import Path
 
@@ -13,10 +7,9 @@ Image.MAX_IMAGE_PIXELS = None
 
 RAW = Path("images_raw")
 OUT = Path("images_opt")
-MAX_DIM = 1000        # plenty for a phone screen
-ICON_DIM = 160        # below this, leave alone
+MAX_DIM = 1000
+ICON_DIM = 160
 JPEG_Q = 78
-
 
 def alpha_used(im):
     if im.mode not in ("RGBA", "LA", "P"):
@@ -27,7 +20,6 @@ def alpha_used(im):
         im = im.convert("RGBA")
     a = im.getchannel("A")
     return a.getextrema()[0] < 250
-
 
 def main():
     OUT.mkdir(exist_ok=True)
@@ -47,7 +39,6 @@ def main():
                 w, h = im.size
                 keeps_alpha = alpha_used(im)
 
-                # small icons: copy verbatim, re-encoding only makes them worse
                 if max(w, h) <= ICON_DIM and raw_size < 60_000:
                     dest = OUT / src.name
                     dest.write_bytes(src.read_bytes())
@@ -67,7 +58,6 @@ def main():
                     if im.mode != "RGBA":
                         im = im.convert("RGBA")
                     dest = OUT / (src.stem + ".png")
-                    # quantize wide-gamut PNGs; keeps alpha, cuts size hard
                     if im.width * im.height > 60_000:
                         q = im.convert("RGBA").quantize(
                             colors=160, method=Image.FASTOCTREE)
@@ -88,7 +78,6 @@ def main():
                     im.save(dest, "JPEG", quality=JPEG_Q, optimize=True,
                             progressive=True)
 
-                # never ship something bigger than the original
                 if dest.stat().st_size >= raw_size and dest.suffix == src.suffix:
                     dest.write_bytes(src.read_bytes())
                 mapping[src.name] = dest.name
@@ -104,7 +93,6 @@ def main():
           f"flattened {flattened}, failed {failed})")
     print(f"size: {before/1e6:.1f}MB -> {after/1e6:.1f}MB "
           f"({100*after/before:.0f}%)")
-
 
 if __name__ == "__main__":
     main()

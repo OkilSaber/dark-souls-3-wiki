@@ -5,12 +5,6 @@ import '../favorites.dart';
 import '../motion.dart';
 import '../theme.dart';
 
-/// Bookmark toggle for the article bar.
-///
-/// Saving is a commit, so it gets a short overshoot and a haptic fired on the
-/// same frame as the icon change — the visual and the tap must agree, or the
-/// feedback reads as lag. Un-saving is deliberately plainer: undoing an action
-/// should not celebrate.
 class FavoriteButton extends StatefulWidget {
   const FavoriteButton({super.key, required this.slug});
 

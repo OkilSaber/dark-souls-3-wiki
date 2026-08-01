@@ -8,7 +8,6 @@ import '../wiki_repository.dart';
 import 'article_screen.dart';
 import 'page_tile.dart';
 
-/// Alphabetical page list for one category, with an inline filter.
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({
     super.key,
@@ -21,8 +20,6 @@ class CategoryScreen extends StatefulWidget {
   final String title;
   final List<String> slugs;
 
-  /// Opens a category, short-circuiting to the article when the category holds
-  /// exactly one page — a one-row list is a dead end, not a choice.
   static void open(
       BuildContext context, WikiRepository repo, WikiCategory category) {
     if (category.slugs.length == 1) {

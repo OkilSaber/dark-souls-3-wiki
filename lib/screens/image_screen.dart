@@ -4,12 +4,6 @@ import 'package:flutter/physics.dart';
 import '../motion.dart';
 import '../theme.dart';
 
-/// Full-screen, pinch-zoomable viewer with drag-to-dismiss.
-///
-/// While zoomed out the image tracks the finger 1:1 and the backdrop thins as
-/// it travels, so the gesture previews its own outcome. Release decides on
-/// projected momentum rather than raw distance — a short flick dismisses, a
-/// slow drag of the same length springs back.
 class ImageScreen extends StatefulWidget {
   const ImageScreen({super.key, required this.assetPath, this.caption});
 
@@ -30,8 +24,6 @@ class _ImageScreenState extends State<ImageScreen>
   double _dy = 0;
   bool _dragging = false;
 
-  /// Travel at which the backdrop has fully thinned; also the distance scale
-  /// for the dismiss decision.
   static const _travel = 260.0;
 
   bool get _zoomed => _view.value.getMaxScaleOnAxis() > 1.01;
@@ -59,16 +51,12 @@ class _ImageScreenState extends State<ImageScreen>
     _dragging = false;
     final v = d.velocity.pixelsPerSecond.dy;
 
-    // Project where the flick would come to rest, the same way scroll
-    // deceleration does, and judge that point rather than the release point.
     final projected = _dy + _project(v);
     if (projected.abs() > _travel * 0.55) {
       Navigator.of(context).maybePop();
       return;
     }
 
-    // Spring home carrying the release velocity, so there is no seam between
-    // the drag and the animation that follows it.
     _return.animateWith(SpringSimulation(
       const SpringDescription(mass: 1, stiffness: 500, damping: 34),
       _dy,
@@ -111,8 +99,6 @@ class _ImageScreenState extends State<ImageScreen>
         child: Center(
           child: Transform.translate(
             offset: Offset(0, _dy),
-            // A touch of shrink as it travels reinforces that the sheet is
-            // receding rather than merely sliding off.
             child: Transform.scale(
               scale: 1 - progress * 0.08,
               child: InteractiveViewer(

@@ -6,7 +6,6 @@ import '../widgets/glass.dart';
 import '../wiki_repository.dart';
 import 'page_tile.dart';
 
-/// Saved pages, most recently saved first.
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key, required this.repo});
 

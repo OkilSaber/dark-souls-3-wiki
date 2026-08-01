@@ -1,9 +1,3 @@
-"""Stage 5: download every image referenced by a page we are keeping.
-
-Thumbnail URLs were already collapsed onto their originals during parsing, so
-each distinct image is fetched once regardless of how many sizes the wiki
-rendered it at.
-"""
 import asyncio
 import json
 import urllib.parse
@@ -16,7 +10,6 @@ from wikiapi import UA, out_dir
 CDN = "https://static0.fextralifeimages.com"
 RAW = Path("images_raw")
 CONCURRENCY = 10
-
 
 async def one(client, name, remote, sem, stats):
     dest = RAW / name
@@ -40,7 +33,6 @@ async def one(client, name, remote, sem, stats):
                 await asyncio.sleep(2 * (attempt + 1))
         stats["fail"] += 1
         stats.setdefault("failed", []).append(name)
-
 
 async def main():
     RAW.mkdir(exist_ok=True)
@@ -69,7 +61,6 @@ async def main():
     if stats.get("failed"):
         Path("failed_images.txt").write_text("\n".join(stats["failed"]))
     (d / "needed_images.json").write_text(json.dumps(needed, indent=1))
-
 
 if __name__ == "__main__":
     asyncio.run(main())

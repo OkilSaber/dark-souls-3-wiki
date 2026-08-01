@@ -1,47 +1,31 @@
 import 'package:flutter/material.dart';
 
-/// Visual language: cold ash and firelight.
-///
-/// Greys carry a warm undertone rather than being neutral, so the gold accent
-/// reads as light falling on the surface instead of a sticker placed on top.
-/// Type is sized as a set — size, weight, tracking and leading move together,
-/// because a single letter-spacing value is always wrong at some size.
 class AppTheme {
   AppTheme._();
 
-  // ---- surfaces, darkest first ------------------------------------------
   static const bg = Color(0xFF0E0D0C);
   static const surface = Color(0xFF161513);
   static const surfaceAlt = Color(0xFF1D1B19);
   static const surfaceAlt2 = Color(0xFF252220);
   static const surfaceHigh = Color(0xFF2C2825);
 
-  /// Chrome that content scrolls beneath. Semi-transparent by design — it is
-  /// blurred at the point of use so the page shows through as a material.
   static const glass = Color(0xE014120F);
 
   static const border = Color(0xFF322D28);
   static const borderSoft = Color(0xFF241F1B);
 
-  // ---- ink ---------------------------------------------------------------
   static const text = Color(0xFFEDE7DD);
   static const textDim = Color(0xFF9C938A);
   static const textFaint = Color(0xFF6E665E);
 
-  // ---- accents -----------------------------------------------------------
   static const gold = Color(0xFFD9B45F);
   static const goldDim = Color(0xFF8A7239);
   static const ember = Color(0xFFE07A3C);
 
-  /// Links sit in the same warm family as the gold headings but lighter, so
-  /// they read as interactive without introducing a second, colder hue.
   static const link = Color(0xFFE8C579);
 
   static const tableHeader = Color(0xFF2A2318);
 
-  /// A serif for display text. Android resolves this to Noto Serif, which
-  /// suits a wiki about a game whose own UI is book-like — and costs nothing
-  /// to ship since it is already on the device.
   static const displayFamily = 'serif';
 
   static ThemeData build() {
@@ -81,8 +65,6 @@ class AppTheme {
       textTheme: base.textTheme
           .apply(bodyColor: text, displayColor: text)
           .copyWith(
-            // Display: large text needs negative tracking — letters drift
-            // apart as they grow — and tight leading.
             displaySmall: const TextStyle(
               fontFamily: displayFamily,
               fontSize: 30,
@@ -113,12 +95,9 @@ class AppTheme {
               fontWeight: FontWeight.w700,
               color: text,
             ),
-            // Body: tracking at zero, leading loose enough to read a wall of
-            // wiki prose without losing the line.
             bodyLarge: const TextStyle(fontSize: 16, height: 1.55, color: text),
             bodyMedium:
                 const TextStyle(fontSize: 15, height: 1.55, color: text),
-            // Small text gets a touch of positive tracking to stay legible.
             bodySmall: const TextStyle(
               fontSize: 12.5,
               height: 1.4,
@@ -161,8 +140,6 @@ class AppTheme {
     );
   }
 
-  /// Sections are colour-coded so a glance at any screen answers "where am I".
-  /// Hues are muted to a common saturation so they read as one family.
   static Color accentForSection(String name) => switch (name) {
         'Weapons' => const Color(0xFFC98F6E),
         'Equipment' => const Color(0xFF7FA6C9),
