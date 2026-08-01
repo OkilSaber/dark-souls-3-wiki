@@ -1,5 +1,4 @@
 import 'package:dark_souls_3_wiki/favorites.dart';
-import 'package:dark_souls_3_wiki/main.dart';
 import 'package:dark_souls_3_wiki/screens/home_screen.dart';
 import 'package:dark_souls_3_wiki/theme.dart';
 import 'package:dark_souls_3_wiki/wiki_repository.dart';
