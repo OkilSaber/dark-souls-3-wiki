@@ -64,3 +64,6 @@ icon/preview*.png
 icon/mask_preview.png
 icon/icon_foreground.svg
 icon/icon_background.svg
+
+# Screenshots from the flutter run console (s key)
+flutter_*.png
