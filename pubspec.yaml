@@ -2,7 +2,7 @@ name: dark_souls_3_wiki
 description: "Offline Dark Souls 3 wiki for Android."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: ^3.12.2
