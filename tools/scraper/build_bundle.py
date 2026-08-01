@@ -5,6 +5,10 @@ from collections import Counter
 from pathlib import Path
 
 APP = Path(__file__).resolve().parents[2]
+if not (APP / "pubspec.yaml").is_file():
+    raise SystemExit(
+        f"{APP} is not the Flutter project root. Run this script from "
+        f"tools/scraper inside the checkout, not from a copy elsewhere.")
 DATA = APP / "assets" / "data"
 IMG = APP / "assets" / "img"
 SHARDS = 64

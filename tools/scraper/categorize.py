@@ -129,6 +129,13 @@ BUILD_RE = re.compile(r"\b(build|pvp|pve)\b", re.I)
 
 JUNK_TITLE = re.compile(r"^(Subcontent:|Template:|Sandbox|Test page)", re.I)
 
+FORCE_CATEGORY = {
+    "Maps": ("Maps", "World"),
+    "Entiremap": ("Maps", "World"),
+    "Farron_Keepmap": ("Maps", "World"),
+    "Firelink_Shrinemap": ("Maps", "World"),
+}
+
 def index_titles(pages):
     names = set()
     for p in pages.values():
@@ -158,6 +165,12 @@ def main():
     hubs = index_titles(pages)
 
     for slug, page in pages.items():
+        if slug in FORCE_CATEGORY:
+            display, section = FORCE_CATEGORY[slug]
+            assigned[slug] = (display, section)
+            members[(section, display)].append(slug)
+            origin["forced"] += 1
+            continue
         cats = [c.replace("_", " ") for c in page.get("categories", [])
                 if not IGNORE_CATEGORY.match(c.replace("_", " "))]
         known = [c for c in cats if c in lookup]

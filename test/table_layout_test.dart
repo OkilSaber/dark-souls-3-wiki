@@ -28,9 +28,11 @@ void main() {
     await tester.pump();
   }
 
-  List<RenderBox> renderedRows(WidgetTester tester) => tester
-      .renderObjectList<RenderBox>(find.descendant(
-          of: find.byType(BlockList), matching: find.byType(Row)))
+  List<double> cellWidths(WidgetTester tester) => tester
+      .widgetList<SizedBox>(find.descendant(
+          of: find.byType(BlockList), matching: find.byType(SizedBox)))
+      .map((b) => b.width)
+      .whereType<double>()
       .toList();
 
   Cell cell(String text, {int cs = 1, bool header = false}) => Cell(
@@ -49,8 +51,8 @@ void main() {
 
     await pumpTable(tester, table);
 
-    expect(renderedRows(tester).first.size.width, greaterThan(available - 40),
-        reason: 'a one-column table used to be pinned to a 92px column, '
+    expect(cellWidths(tester).first, greaterThan(available - 40),
+        reason: 'a one-column table used to be pinned to a 92px cell, '
             'leaving the content in a narrow strip with dead space beside it');
   });
 
@@ -63,8 +65,22 @@ void main() {
     ]);
 
     await pumpTable(tester, table);
-    final widths = renderedRows(tester).map((r) => r.size.width).toSet();
-    expect(widths.length, 1,
-        reason: 'every row should be laid out to the same total width');
+
+    final totals = [
+      for (final row in find.byType(Row).evaluate())
+        tester
+            .widgetList<SizedBox>(find.descendant(
+                of: find.byWidget(row.widget), matching: find.byType(SizedBox)))
+            .map((b) => b.width)
+            .whereType<double>()
+            .fold<double>(0, (a, b) => a + b),
+    ].where((t) => t > 0).toList();
+
+    expect(totals, hasLength(3));
+    for (final t in totals.skip(1)) {
+      expect(t, closeTo(totals.first, 1),
+          reason: 'a row whose colspans fall short must stretch to match, '
+              'not leave a gap at the end');
+    }
   });
 }

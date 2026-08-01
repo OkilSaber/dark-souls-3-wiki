@@ -50,11 +50,11 @@ app.*.map.json
 /assets/img/
 
 # Scraper scratch space
-tools/scraper/venv/
-tools/scraper/parse_cache/
-tools/scraper/images_raw/
-tools/scraper/images_opt/
-tools/scraper/parsed/
+tools/scraper/venv
+tools/scraper/parse_cache
+tools/scraper/images_raw
+tools/scraper/images_opt
+tools/scraper/parsed
 tools/scraper/*.log
 tools/scraper/*.txt
 

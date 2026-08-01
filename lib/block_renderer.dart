@@ -372,7 +372,9 @@ class _TableBlock extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(11),
-          child: Column(children: _rows(context, flexible: true, maxUnits: _units())),
+          child: Column(
+            children:
+                _rows(context, flexible: true, maxUnits: _units(), width: 0)),
         ),
       );
     }
@@ -397,8 +399,8 @@ class _TableBlock extends StatelessWidget {
               child: SizedBox(
                 width: width,
                 child: Column(
-                    children:
-                        _rows(context, flexible: false, maxUnits: maxUnits)),
+                    children: _rows(context,
+                        flexible: false, maxUnits: maxUnits, width: width)),
               ),
             );
             if (width <= constraints.maxWidth) return table;
@@ -444,7 +446,7 @@ class _TableBlock extends StatelessWidget {
   }
 
   List<Widget> _rows(BuildContext context,
-      {required bool flexible, required int maxUnits}) {
+      {required bool flexible, required int maxUnits, required double width}) {
     final out = <Widget>[];
     for (var r = 0; r < block.rows.length; r++) {
       final row = block.rows[r];
@@ -470,7 +472,7 @@ class _TableBlock extends StatelessWidget {
                       child: _cell(context, row[i], isHeader),
                     )
                   : SizedBox(
-                      width: spans[i] * _minColWidth,
+                      width: spans[i] * width / maxUnits,
                       child: _cell(context, row[i], isHeader),
                     ),
           ],
