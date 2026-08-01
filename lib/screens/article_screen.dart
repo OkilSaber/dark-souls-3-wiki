@@ -184,7 +184,9 @@ class _Breadcrumb extends StatelessWidget {
             borderRadius: BorderRadius.circular(7),
           ),
           child: Text(
-            '${ref.section}  ›  ${ref.category}',
+            ref.section == ref.category
+                ? ref.section
+                : '${ref.section}  ›  ${ref.category}',
             style: TextStyle(
               color: accent,
               fontSize: 11,
